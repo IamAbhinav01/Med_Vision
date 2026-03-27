@@ -1,0 +1,25 @@
+[project]
+name = "med-backend"
+version = "1.0.0"
+description = "MedVision AI — Two-stage medical scan detection backend"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    # ML stack
+    "timm>=1.0.25",
+    "torch>=2.10.0",
+    "torchaudio>=2.10.0",
+    "torchvision>=0.25.0",
+    "albumentations>=2.0.8",
+    "pillow>=12.1.1",
+    "numpy>=1.24.0",
+    # API
+    "fastapi>=0.115.0",
+    "uvicorn[standard]>=0.32.0",
+    "python-multipart>=0.0.12",
+    # Utilities
+    "requests>=2.32.5",
+    "tqdm>=4.67.3",
+]
+
+

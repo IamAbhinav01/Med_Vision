@@ -1,0 +1,17 @@
+# Core ML
+timm
+torch
+torchvision
+torchaudio
+albumentations
+pillow
+numpy
+
+# API server
+fastapi
+uvicorn[standard]
+python-multipart
+
+# Utilities
+requests
+tqdm
