@@ -1,30 +1,35 @@
 import { useState, useCallback } from 'react'
 
 /**
- * State machine for the analysis pipeline.
+ * State machine for the full 3-stage analysis pipeline.
  *
- * States:
- *   idle → uploading → stage1-loading → stage1-done → stage2-loading → stage2-done → done | error
+ * Phases: idle → analyzing → done | error
+ * Stages: stage1 | stage2 | stage3  each: null | 'loading' | 'done'
  */
 export function useAnalysis() {
-  const [phase, setPhase] = useState('idle')      // 'idle' | 'analyzing' | 'done' | 'error'
-  const [stage1Status, setStage1Status] = useState(null)  // null | 'loading' | 'done'
+  const [phase,        setPhase]        = useState('idle')
+  const [stage1Status, setStage1Status] = useState(null)
   const [stage2Status, setStage2Status] = useState(null)
-  const [result, setResult] = useState(null)
-  const [error, setError] = useState(null)
+  const [stage3Status, setStage3Status] = useState(null)
+  const [result,       setResult]       = useState(null)
+  const [error,        setError]        = useState(null)
 
-  const analyze = useCallback(async (file) => {
+  const analyze = useCallback(async (file, patientName = 'Anonymous', symptomText = '', runNlp = false) => {
     setPhase('analyzing')
     setStage1Status('loading')
     setStage2Status(null)
+    setStage3Status(null)
     setResult(null)
     setError(null)
 
     const formData = new FormData()
     formData.append('image', file)
+    formData.append('patient_name', patientName)
+    formData.append('symptom_text', symptomText)
+    formData.append('run_nlp', runNlp ? 'true' : 'false')
 
     try {
-      const res = await fetch('/analyze-scan', {
+      const res = await fetch('/analyze', {
         method: 'POST',
         body: formData,
       })
@@ -36,26 +41,31 @@ export function useAnalysis() {
 
       const data = await res.json()
 
-      // Simulate sequential reveal so the UI reasoning flow is visible.
-      // Stage 1 arrives — show it.
+      // ── Animated sequential reveal ─────────────────────────────────────
       await delay(600)
       setStage1Status('done')
 
-      // Brief pause before revealing Stage 2 loading state.
       await delay(500)
       setStage2Status('loading')
 
-      // Show stage 2 result.
       await delay(700)
       setStage2Status('done')
 
-      // Final result.
-      await delay(400)
+      // Only show Stage 3 card if the classifier ran
+      if (data.stage3_supported !== false) {
+        await delay(400)
+        setStage3Status('loading')
+        await delay(800)
+        setStage3Status('done')
+      }
+
+      await delay(350)
       setResult(data)
       setPhase('done')
     } catch (err) {
       setStage1Status(null)
       setStage2Status(null)
+      setStage3Status(null)
       setError(err.message || 'Unknown error')
       setPhase('error')
     }
@@ -65,11 +75,17 @@ export function useAnalysis() {
     setPhase('idle')
     setStage1Status(null)
     setStage2Status(null)
+    setStage3Status(null)
     setResult(null)
     setError(null)
   }, [])
 
-  return { phase, stage1Status, stage2Status, result, error, analyze, reset }
+  return {
+    phase,
+    stage1Status, stage2Status, stage3Status,
+    result, error,
+    analyze, reset,
+  }
 }
 
 function delay(ms) {

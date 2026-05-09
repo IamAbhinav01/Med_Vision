@@ -1,7 +1,7 @@
 [project]
 name = "med-backend"
 version = "1.0.0"
-description = "MedVision AI — Two-stage medical scan detection backend"
+description = "MedVision AI — Three-stage medical scan detection backend"
 readme = "README.md"
 requires-python = ">=3.10"
 dependencies = [
@@ -13,6 +13,13 @@ dependencies = [
     "albumentations>=2.0.8",
     "pillow>=12.1.1",
     "numpy>=1.24.0",
+    # Vision utilities (GradCAM overlay)
+    "opencv-python-headless>=4.9.0",
+    "matplotlib>=3.8.0",
+    # NLP models
+    "transformers>=4.40.0",
+    "accelerate>=0.29.0",
+    "sentencepiece>=0.2.0",
     # API
     "fastapi>=0.115.0",
     "uvicorn[standard]>=0.32.0",

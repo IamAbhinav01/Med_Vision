@@ -14,6 +14,14 @@ export default defineConfig({
         target: 'http://localhost:8000',
         changeOrigin: true,
       },
+      '/analyze': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
+      '/ask': {
+        target: 'http://localhost:8000',
+        changeOrigin: true,
+      },
       '/health': {
         target: 'http://localhost:8000',
         changeOrigin: true,

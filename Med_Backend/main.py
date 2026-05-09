@@ -12,8 +12,12 @@ from src.api.routes import router
 
 app = FastAPI(
     title="MedVision AI",
-    description="Two-stage medical scan detection pipeline.",
-    version="1.0.0",
+    description=(
+        "Three-stage medical scan analysis pipeline: "
+        "scan type detection → body part detection → disease classification "
+        "+ GradCAM attention heatmaps + NLP report generation."
+    ),
+    version="2.0.0",
 )
 
 # ── CORS — allow the Vite dev server (port 5173) and any origin in production ─
@@ -30,4 +34,4 @@ app.include_router(router)
 
 @app.get("/health")
 def health():
-    return {"status": "ok", "service": "MedVision AI Backend"}
+    return {"status": "ok", "service": "MedVision AI Backend", "version": "2.0.0"}

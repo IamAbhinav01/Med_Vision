@@ -624,3 +624,257 @@ body {
   font-weight: 600;
   color: #475569;
 }
+
+/* ── Patient form inputs ──────────────────────────────────────── */
+.form-label {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #64748B;
+  margin-bottom: 0.375rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+.form-input {
+  width: 100%;
+  padding: 0.5rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  font-size: 0.85rem;
+  color: #0F172A;
+  outline: none;
+  transition: border-color 0.2s, box-shadow 0.2s;
+  font-family: 'Inter', system-ui, sans-serif;
+}
+
+.form-input:focus {
+  border-color: #3B82F6;
+  box-shadow: 0 0 0 3px rgba(59,130,246,0.12);
+  background: #FFFFFF;
+}
+
+.form-textarea {
+  resize: none;
+  line-height: 1.55;
+}
+
+/* ── NLP toggle row ───────────────────────────────────────────── */
+.nlp-toggle-row {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 0.625rem 0.75rem;
+  border-radius: 10px;
+  border: 1px solid #E2E8F0;
+  background: #F8FAFC;
+  transition: background 0.2s, border-color 0.2s;
+}
+
+.nlp-toggle-row:hover {
+  background: #EFF6FF;
+  border-color: #BFDBFE;
+}
+
+.nlp-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #EDE9FE;
+  color: #7C3AED;
+  border: 1px solid #DDD6FE;
+  padding: 0.1rem 0.4rem;
+  border-radius: 4px;
+}
+
+/* Toggle switch */
+.toggle-switch {
+  width: 36px;
+  height: 20px;
+  border-radius: 10px;
+  background: #CBD5E1;
+  position: relative;
+  flex-shrink: 0;
+  transition: background 0.25s;
+}
+
+.toggle-switch.toggle-on {
+  background: #2563EB;
+}
+
+.toggle-thumb {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: white;
+  box-shadow: 0 1px 3px rgba(0,0,0,0.2);
+  transition: transform 0.25s cubic-bezier(0.4,0,0.2,1);
+}
+
+.toggle-switch.toggle-on .toggle-thumb {
+  transform: translateX(16px);
+}
+
+/* ── Severity chip ────────────────────────────────────────────── */
+.severity-chip {
+  display: inline-flex;
+  align-items: center;
+  padding: 0.25rem 0.625rem;
+  border-radius: 9999px;
+  font-size: 0.68rem;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  flex-shrink: 0;
+}
+
+/* ── Stage 3 diagnosis hero ───────────────────────────────────── */
+.diagnosis-divider {
+  display: flex;
+  align-items: center;
+  gap: 0.625rem;
+  margin-bottom: 1rem;
+}
+
+.diagnosis-hero {
+  border-radius: 14px;
+  padding: 1.25rem;
+}
+
+.diagnosis-hero-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.diagnosis-title {
+  font-size: 1.5rem;
+  font-weight: 800;
+  color: #0F172A;
+  letter-spacing: -0.02em;
+  line-height: 1.2;
+}
+
+/* ── GradCAM heatmap panel ────────────────────────────────────── */
+.heatmap-panel {
+  border-radius: 14px;
+  border: 1px solid #FED7AA;
+  background: linear-gradient(135deg, #FFF7ED, #FFFBEB);
+  overflow: hidden;
+}
+
+.heatmap-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #FED7AA;
+}
+
+.heatmap-badge {
+  font-size: 0.6rem;
+  font-weight: 700;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  background: #FEF3C7;
+  color: #D97706;
+  border: 1px solid #FDE68A;
+  padding: 0.15rem 0.45rem;
+  border-radius: 4px;
+  margin-left: 0.375rem;
+}
+
+.heatmap-toggle-btn {
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #D97706;
+  background: white;
+  border: 1px solid #FDE68A;
+  padding: 0.25rem 0.625rem;
+  border-radius: 8px;
+  cursor: pointer;
+  transition: all 0.18s;
+}
+
+.heatmap-toggle-btn:hover {
+  background: #FEF3C7;
+}
+
+.heatmap-img-wrap {
+  padding: 0.75rem 1rem 1rem;
+}
+
+.heatmap-img {
+  width: 100%;
+  max-width: 280px;
+  display: block;
+  margin: 0 auto;
+  border-radius: 10px;
+  border: 1px solid #FED7AA;
+}
+
+.heatmap-caption {
+  text-align: center;
+  font-size: 0.68rem;
+  color: #92400E;
+  margin-top: 0.5rem;
+}
+
+/* ── AI Report panel ──────────────────────────────────────────── */
+.report-panel {
+  border-radius: 14px;
+  border: 1px solid #BFDBFE;
+  background: linear-gradient(135deg, #EFF6FF, #F0F9FF);
+  overflow: hidden;
+}
+
+.report-header {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.75rem 1rem;
+  border-bottom: 1px solid #BFDBFE;
+}
+
+.report-summary {
+  padding: 0.875rem 1rem;
+  border-bottom: 1px solid #BFDBFE;
+  background: rgba(255,255,255,0.5);
+}
+
+.report-expand-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.375rem;
+  width: 100%;
+  padding: 0.625rem 1rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  color: #2563EB;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  transition: background 0.18s;
+  text-align: left;
+}
+
+.report-expand-btn:hover {
+  background: rgba(37,99,235,0.05);
+}
+
+.report-text {
+  padding: 0.75rem 1rem 1rem;
+  font-family: 'Courier New', monospace;
+  font-size: 0.7rem;
+  color: #334155;
+  white-space: pre-wrap;
+  line-height: 1.7;
+  border-top: 1px solid #BFDBFE;
+  background: rgba(255,255,255,0.6);
+}

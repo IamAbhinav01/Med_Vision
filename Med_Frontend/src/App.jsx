@@ -2,28 +2,40 @@ import { useState, useEffect } from 'react'
 import { motion, AnimatePresence } from 'framer-motion'
 import { AlertCircle, RotateCcw } from 'lucide-react'
 
-import ParticleBackground from './components/ParticleBackground'
-import Header from './components/Header'
-import UploadCard from './components/UploadCard'
-import ImagePreview from './components/ImagePreview'
-import SkillExecutionCard from './components/SkillExecutionCard'
-import ResultCard from './components/ResultCard'
-import { useAnalysis } from './hooks/useAnalysis'
+import ParticleBackground  from './components/ParticleBackground'
+import Header              from './components/Header'
+import UploadCard          from './components/UploadCard'
+import PatientForm         from './components/PatientForm'
+import ImagePreview        from './components/ImagePreview'
+import SkillExecutionCard  from './components/SkillExecutionCard'
+import ResultCard          from './components/ResultCard'
+import { useAnalysis }     from './hooks/useAnalysis'
 
 import './index.css'
 
 export default function App() {
-  const [file, setFile] = useState(null)
-  const [previewUrl, setPreviewUrl] = useState(null)
-  const { phase, stage1Status, stage2Status, result, error, analyze, reset } = useAnalysis()
+  const [file,        setFile]        = useState(null)
+  const [previewUrl,  setPreviewUrl]  = useState(null)
+
+  // Patient metadata — collected from PatientForm before upload
+  const [patientName, setPatientName] = useState('Anonymous')
+  const [symptomText, setSymptomText] = useState('')
+  const [runNlp,      setRunNlp]      = useState(false)
+
+  const {
+    phase,
+    stage1Status, stage2Status, stage3Status,
+    result, error,
+    analyze, reset,
+  } = useAnalysis()
 
   const isAnalyzing = phase === 'analyzing'
-  const isIdle = phase === 'idle'
+  const isIdle      = phase === 'idle'
 
   const handleUpload = (f) => {
     setFile(f)
     setPreviewUrl(URL.createObjectURL(f))
-    analyze(f)
+    analyze(f, patientName, symptomText, runNlp)
   }
 
   const handleReset = () => {
@@ -33,11 +45,11 @@ export default function App() {
     reset()
   }
 
-  // Cleanup object URL on unmount
   useEffect(() => () => { if (previewUrl) URL.revokeObjectURL(previewUrl) }, [])
 
   const showSkill1 = stage1Status !== null
   const showSkill2 = stage2Status !== null
+  const showSkill3 = stage3Status !== null && result?.stage3_supported !== false
   const showResult = phase === 'done' && result
 
   return (
@@ -47,26 +59,33 @@ export default function App() {
       <div className="page-wrapper">
         <div className="page-inner">
 
-          {/* ── Header ─────────────────────────────────────────────── */}
+          {/* ── Header ───────────────────────────────────────────── */}
           <Header />
 
-          {/* ── Main content ───────────────────────────────────────── */}
+          {/* ── Main content ─────────────────────────────────────── */}
           <div className="content-stack">
 
-            {/* Upload card — hidden once analyzing begins */}
+            {/* Upload + patient form (hidden once analysis starts) */}
             <AnimatePresence>
               {isIdle && (
                 <motion.div
-                  key="upload"
+                  key="upload-section"
                   exit={{ opacity: 0, y: -16, scale: 0.97 }}
                   transition={{ duration: 0.35 }}
+                  style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}
                 >
                   <UploadCard onUpload={handleUpload} disabled={false} />
+                  <PatientForm
+                    onPatientName={setPatientName}
+                    onSymptomText={setSymptomText}
+                    onRunNlp={setRunNlp}
+                    runNlp={runNlp}
+                  />
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* Image preview card */}
+            {/* Image preview */}
             <ImagePreview
               file={file}
               previewUrl={previewUrl}
@@ -74,9 +93,9 @@ export default function App() {
               onReset={handleReset}
             />
 
-            {/* ── AI Reasoning Timeline ──────────────────────────── */}
+            {/* ── AI Reasoning Timeline ─────────────────────────── */}
             <AnimatePresence>
-              {(showSkill1 || showSkill2) && (
+              {(showSkill1 || showSkill2 || showSkill3) && (
                 <motion.div
                   key="timeline"
                   initial={{ opacity: 0 }}
@@ -84,23 +103,18 @@ export default function App() {
                   transition={{ duration: 0.4 }}
                   className="timeline-section"
                 >
-                  {/* Timeline header */}
                   <div className="timeline-divider">
                     <div className="timeline-divider-line bg-gradient-to-r from-transparent to-slate-200" />
-                    <span className="timeline-divider-label text-slate-400">
-                      AI Reasoning
-                    </span>
+                    <span className="timeline-divider-label text-slate-400">AI Reasoning</span>
                     <div className="timeline-divider-line bg-gradient-to-l from-transparent to-slate-200" />
                   </div>
 
-                  {/* Skills */}
                   <div className="timeline-skills">
-                    {/* Vertical timeline line */}
-                    {showSkill1 && showSkill2 && (
+                    {/* Connector line */}
+                    {showSkill1 && (showSkill2 || showSkill3) && (
                       <div className="timeline-vline" />
                     )}
 
-                    {/* Step 1 */}
                     <AnimatePresence>
                       {showSkill1 && (
                         <SkillExecutionCard
@@ -113,7 +127,6 @@ export default function App() {
                       )}
                     </AnimatePresence>
 
-                    {/* Step 2 */}
                     <AnimatePresence>
                       {showSkill2 && (
                         <SkillExecutionCard
@@ -125,21 +138,30 @@ export default function App() {
                         />
                       )}
                     </AnimatePresence>
+
+                    <AnimatePresence>
+                      {showSkill3 && (
+                        <SkillExecutionCard
+                          key="skill3"
+                          skill="disease_classifier_skill"
+                          status={stage3Status}
+                          result={result}
+                          index={2}
+                        />
+                      )}
+                    </AnimatePresence>
                   </div>
                 </motion.div>
               )}
             </AnimatePresence>
 
-            {/* ── Final result card ──────────────────────────────── */}
+            {/* ── Final result card ─────────────────────────────── */}
             <AnimatePresence>
               {showResult && (
                 <motion.div key="result-section">
-                  {/* Separator */}
                   <div className="timeline-divider">
                     <div className="timeline-divider-line bg-gradient-to-r from-transparent to-blue-200" />
-                    <span className="timeline-divider-label text-blue-400">
-                      Final Result
-                    </span>
+                    <span className="timeline-divider-label text-blue-400">Final Result</span>
                     <div className="timeline-divider-line bg-gradient-to-l from-transparent to-blue-200" />
                   </div>
                   <ResultCard result={result} />
@@ -147,7 +169,7 @@ export default function App() {
               )}
             </AnimatePresence>
 
-            {/* ── Error state ────────────────────────────────────── */}
+            {/* ── Error ────────────────────────────────────────── */}
             <AnimatePresence>
               {phase === 'error' && (
                 <motion.div
@@ -177,7 +199,7 @@ export default function App() {
               )}
             </AnimatePresence>
 
-            {/* ── Reset button after success ─────────────────────── */}
+            {/* ── Re-analyze ───────────────────────────────────── */}
             <AnimatePresence>
               {phase === 'done' && (
                 <motion.div
@@ -200,9 +222,8 @@ export default function App() {
             </AnimatePresence>
           </div>
 
-          {/* Footer */}
           <p className="page-footer">
-            MedVision AI · EfficientNet-B4 / B3 Pipeline · For research use only
+            MedVision AI · EfficientNet-B4/B3 + GradCAM + BioGPT · For research use only
           </p>
         </div>
       </div>

@@ -1,25 +1,48 @@
 import { motion, AnimatePresence } from 'framer-motion'
-import { Brain, Scan, CheckCircle2, AlertCircle } from 'lucide-react'
+import { Brain, Scan, CheckCircle2, Activity } from 'lucide-react'
 import LoadingSpinner from './LoadingSpinner'
 import ProbabilityChart from './ProbabilityChart'
 
 const ICONS = {
-  scan_detector_skill: Scan,
-  body_part_detecting_skill: Brain,
+  scan_detector_skill        : Scan,
+  body_part_detecting_skill  : Brain,
+  disease_classifier_skill   : Activity,
 }
 
 const COLORS = {
-  scan_detector_skill: { bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100', badge: 'bg-blue-100 text-blue-700' },
-  body_part_detecting_skill: { bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100', badge: 'bg-violet-100 text-violet-700' },
+  scan_detector_skill: {
+    bg: 'bg-blue-50', text: 'text-blue-600', border: 'border-blue-100',
+    badge: 'bg-blue-100 text-blue-700', bar: 'from-blue-500 to-blue-400',
+    barLabel: 'text-blue-600',
+  },
+  body_part_detecting_skill: {
+    bg: 'bg-violet-50', text: 'text-violet-600', border: 'border-violet-100',
+    badge: 'bg-violet-100 text-violet-700', bar: 'from-violet-500 to-violet-400',
+    barLabel: 'text-violet-600',
+  },
+  disease_classifier_skill: {
+    bg: 'bg-emerald-50', text: 'text-emerald-600', border: 'border-emerald-100',
+    badge: 'bg-emerald-100 text-emerald-700', bar: 'from-emerald-500 to-emerald-400',
+    barLabel: 'text-emerald-600',
+  },
+}
+
+const LOADING_TEXT = {
+  scan_detector_skill       : 'Detecting scan modality…',
+  body_part_detecting_skill : 'Analyzing anatomical region…',
+  disease_classifier_skill  : 'Classifying pathology…',
+}
+
+const SEVERITY_COLORS = {
+  HIGH    : { bg: '#FEF2F2', text: '#DC2626', border: '#FECACA' },
+  MODERATE: { bg: '#FFFBEB', text: '#D97706', border: '#FDE68A' },
+  LOW     : { bg: '#F0FDF4', text: '#16A34A', border: '#BBF7D0' },
 }
 
 export default function SkillExecutionCard({ skill, status, result, index }) {
-  const Icon = ICONS[skill] || Brain
+  const Icon   = ICONS[skill]  || Brain
   const colors = COLORS[skill] || COLORS['scan_detector_skill']
-
-  const loadingText = skill === 'scan_detector_skill'
-    ? 'Detecting scan modality…'
-    : 'Analyzing anatomical region…'
+  const loadingText = LOADING_TEXT[skill] || 'Processing…'
 
   return (
     <motion.div
@@ -56,16 +79,14 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
 
       {/* Card body */}
       <div className="skill-body">
-        {/* Skill header */}
         <div className="skill-badge-row">
-          <span className={`skill-badge ${colors.badge}`}>
-            Skill Executed
-          </span>
+          <span className={`skill-badge ${colors.badge}`}>Skill Executed</span>
           <code className="skill-mono">{skill}</code>
         </div>
 
         <div className="glass-card p-5">
           <AnimatePresence mode="wait">
+            {/* ── Loading state ── */}
             {status === 'loading' && (
               <motion.div
                 key="loading"
@@ -74,7 +95,13 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
                 exit={{ opacity: 0 }}
                 className="loading-row"
               >
-                <LoadingSpinner size={20} color={skill === 'body_part_detecting_skill' ? '#7C3AED' : '#2563EB'} />
+                <LoadingSpinner
+                  size={20}
+                  color={
+                    skill === 'body_part_detecting_skill' ? '#7C3AED' :
+                    skill === 'disease_classifier_skill'  ? '#059669' : '#2563EB'
+                  }
+                />
                 <p className="text-sm text-slate-500 font-medium">{loadingText}</p>
                 <div className="loading-dots">
                   {[0, 0.15, 0.3].map((d) => (
@@ -89,6 +116,7 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
               </motion.div>
             )}
 
+            {/* ── Done state ── */}
             {status === 'done' && result && (
               <motion.div
                 key="result"
@@ -96,7 +124,7 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
               >
-                {/* Stage 1 result */}
+                {/* ── Stage 1: Scan type ── */}
                 {skill === 'scan_detector_skill' && (
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
@@ -112,15 +140,14 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
                         </p>
                       </div>
                     </div>
-                    {/* Confidence bar */}
                     <div className="conf-bar-wrap">
                       <div className="conf-bar-header">
                         <span>Confidence</span>
-                        <span className="font-semibold text-blue-600">{result.stage1_confidence}%</span>
+                        <span className={`font-semibold ${colors.barLabel}`}>{result.stage1_confidence}%</span>
                       </div>
                       <div className="conf-bar-track">
                         <motion.div
-                          className="conf-bar-fill bg-gradient-to-r from-blue-500 to-blue-400"
+                          className={`conf-bar-fill bg-gradient-to-r ${colors.bar}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${result.stage1_confidence}%` }}
                           transition={{ duration: 1.0, ease: 'easeOut', delay: 0.2 }}
@@ -130,7 +157,7 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
                   </div>
                 )}
 
-                {/* Stage 2 result */}
+                {/* ── Stage 2: Body part ── */}
                 {skill === 'body_part_detecting_skill' && (
                   <div>
                     <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
@@ -146,24 +173,84 @@ export default function SkillExecutionCard({ skill, status, result, index }) {
                         </p>
                       </div>
                     </div>
-                    {/* Confidence bar */}
                     <div className="mb-5">
                       <div className="conf-bar-header">
                         <span>Confidence</span>
-                        <span className="font-semibold text-violet-600">{result.stage2_confidence}%</span>
+                        <span className={`font-semibold ${colors.barLabel}`}>{result.stage2_confidence}%</span>
                       </div>
                       <div className="conf-bar-track">
                         <motion.div
-                          className="conf-bar-fill bg-gradient-to-r from-violet-500 to-violet-400"
+                          className={`conf-bar-fill bg-gradient-to-r ${colors.bar}`}
                           initial={{ width: 0 }}
                           animate={{ width: `${result.stage2_confidence}%` }}
                           transition={{ duration: 1.0, ease: 'easeOut', delay: 0.2 }}
                         />
                       </div>
                     </div>
-                    {/* Probability chart */}
                     {result.stage2_all_probs && (
                       <ProbabilityChart probs={result.stage2_all_probs} predicted={result.stage2_body_part} />
+                    )}
+                  </div>
+                )}
+
+                {/* ── Stage 3: Disease ── */}
+                {skill === 'disease_classifier_skill' && (
+                  <div>
+                    <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-3">
+                      Disease Classification
+                    </p>
+
+                    <div className="flex items-center justify-between mb-3">
+                      <div>
+                        <p className="text-xl font-extrabold text-slate-800 leading-tight">
+                          {result.diagnosis}
+                        </p>
+                        <p className="text-xs text-slate-400 mt-0.5">
+                          Routing: <span className="font-mono font-semibold text-slate-600">{result.routing_key}</span>
+                        </p>
+                      </div>
+                      {result.severity && (
+                        <span
+                          className="severity-chip"
+                          style={{
+                            background: SEVERITY_COLORS[result.severity]?.bg   || '#F1F5F9',
+                            color     : SEVERITY_COLORS[result.severity]?.text || '#475569',
+                            border    : `1px solid ${SEVERITY_COLORS[result.severity]?.border || '#E2E8F0'}`,
+                          }}
+                        >
+                          {result.severity}
+                        </span>
+                      )}
+                    </div>
+
+                    {/* Confidence bar */}
+                    <div className="conf-bar-wrap">
+                      <div className="conf-bar-header">
+                        <span>Confidence</span>
+                        <span className={`font-semibold ${colors.barLabel}`}>{result.confidence}%</span>
+                      </div>
+                      <div className="conf-bar-track">
+                        <motion.div
+                          className={`conf-bar-fill bg-gradient-to-r ${colors.bar}`}
+                          initial={{ width: 0 }}
+                          animate={{ width: `${result.confidence}%` }}
+                          transition={{ duration: 1.0, ease: 'easeOut', delay: 0.2 }}
+                        />
+                      </div>
+                    </div>
+
+                    {/* All findings mini chart */}
+                    {result.all_findings && (
+                      <div className="mt-4">
+                        <p className="text-xs font-semibold text-slate-400 uppercase tracking-widest mb-2">
+                          All Findings
+                        </p>
+                        <ProbabilityChart
+                          probs={result.all_findings}
+                          predicted={result.diagnosis}
+                          accentColor="#059669"
+                        />
+                      </div>
                     )}
                   </div>
                 )}
