@@ -29,7 +29,8 @@ export function useAnalysis() {
     formData.append('run_nlp', runNlp ? 'true' : 'false')
 
     try {
-      const res = await fetch('/analyze', {
+      const API_BASE = import.meta.env.VITE_API_URL || '';
+      const res = await fetch(`${API_BASE}/analyze`, {
         method: 'POST',
         body: formData,
       })
